@@ -1,0 +1,154 @@
+/*
+<button id="show-modal" @click="showModal = true">Show Modal</button>
+<!-- use the modal component, pass in the prop -->
+<modal v-if="showModal" @close="showModal = false">
+<!--
+  you can use custom content here to overwrite
+  default content
+-->
+<h3 slot="header">custom header</h3>
+</modal>
+*/
+
+<template>
+  <div >
+
+    <transition name="modal-fade">
+      <div class="modal-mask"
+
+      >
+        <div class="modal-wrapper">
+          <div class="modal-container">
+
+            <div class="modal-header">
+              <slot name="header"></slot>
+              <button type="button" class="close" @click="$emit('close')">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+
+            <div class="modal-body">
+              <slot name="body"></slot>
+            </div>
+
+            <div class="modal-footer">
+              <slot name="footer"></slot>
+            </div>
+          </div>
+        </div>
+      </div>
+    </transition>
+
+
+
+  </div>
+</template>
+
+<script>
+export default {
+  name: "BaseModal",
+  created() {
+
+  },
+  methods: {
+    closeModal() {
+      this.$emit('close')
+    }
+  }
+}
+</script>
+
+<style scoped>
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, .5);
+  display: table;
+  transition: opacity .3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.modal-container {
+  width: 50%;
+  margin: 0px auto;
+  padding: 20px 30px;
+  background-color: #fff;
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .33);
+  transition: all .3s ease;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.modal-header h3 {
+  margin-top: 0;
+  color: #42b983;
+}
+
+.modal-body {
+  margin: 20px 0;
+}
+
+.modal-default-button {
+  color: white;
+  background-color: var(--primary, #007BFF);
+  float: right;
+}
+
+/*
+ * The following styles are auto-applied to elements with
+ * transition="modal" when their visibility is toggled
+ * by Vue.js.
+ *
+ * You can easily play with the modal transition by editing
+ * these styles.
+ */
+
+.modal-enter {
+  opacity: 0;
+}
+
+.modal-leave-active {
+  opacity: 0;
+}
+
+.modal-enter .modal-container,
+.modal-leave-active .modal-container {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
+}
+
+.close {
+  float: right;
+  font-size: 21px;
+  font-weight: bold;
+  line-height: 1;
+  color: #000;
+  text-shadow: 0 1px 0 #fff;
+  filter: alpha(opacity=20);
+  opacity: .2;
+}
+.close:hover,
+.close:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+  filter: alpha(opacity=50);
+  opacity: .5;
+}
+button.close {
+  -webkit-appearance: none;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+  border: 0;
+}
+
+</style>

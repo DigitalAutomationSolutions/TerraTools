@@ -13,6 +13,8 @@ import Vuetify from 'vuetify'
 Vue.use(Vuetify)
 import 'vuetify/dist/vuetify.min.css'
 
+import 'bulma/css/bulma.css'
+
 /* eslint-disable no-new */
 new Vue({
   components: { App },

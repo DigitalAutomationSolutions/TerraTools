@@ -1,25 +1,25 @@
 <template>
   <div id="wrapper">
-    <img id="logo" src="~@/assets/terraform.png" alt="electron-vue" />
+    <img id="logo" src="~@/assets/terraform.png" alt="electron-vue"/>
     <div class="main">
       <toast :value="alertMessage" v-if="alertMessage"></toast>
-      <div class="left-side">
+      <div class="left-side mr-5">
         <span class="title"> Terra Bros Tools </span>
         <div class="doc">
           <label for="dir-input" class="file-label"
-            >Set working directory</label
+          >Set working directory</label
           >
           <input
-            id="dir-input"
-            type="file"
-            @change="selectDirectory"
-            webkitdirectory
-            directory
-            class="hidden"
+              id="dir-input"
+              type="file"
+              @change="selectDirectory"
+              webkitdirectory
+              directory
+              class="hidden"
           />
         </div>
-        <div class="doc" v-if="working_directory">
-          <div class="title alt">Dir:</div>
+        <div class="doc mt-5" v-if="working_directory">
+          <div class="title alt mt-5">Dir:</div>
           <p>{{ working_directory }}</p>
           <div class="title alt">Sub Directories</div>
 
@@ -39,23 +39,65 @@
         </div>
         <div class="doc" v-if="working_directory">
           <div class="grid">
-            <button @click="handleRename">Rename directory prefixes</button>
+            <button @click="renameDialog = true">Rename directory prefixes</button>
             <button @click="handleStripGit">Strip Git</button>
             <button @click="handleStripTemplate">Strip Template</button>
           </div>
         </div>
       </div>
     </div>
+    <base-modal v-if="renameDialog" @close="renameDialog = false">
+      <h3 slot="header">Rename Directories</h3>
+      <div slot="body" class="mt-5">
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Find</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <p class="control">
+                <input class="input" v-model="renameFind">
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Replace</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <p class="control">
+                <input class="input" v-model="renameReplace">
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div slot="footer" class="mt-5 mb-2">
+        <div class="field is-grouped">
+          <div class="control">
+            <button @click="renameDialog = false" class="file-label">Cancel</button>
+          </div>
+          <div class="control">
+            <button @click="handleRename" class="file-label">Proceed</button>
+          </div>
+        </div>
+      </div>
+    </base-modal>
   </div>
 </template>
 
 <script>
 import Toast from "./Toast";
+import BaseModal from "./BaseModal";
+
 const fs = window.require("fs");
 
 export default {
   name: "landing-page",
-  components: { Toast },
+  components: {Toast, BaseModal},
 
   data() {
     return {
@@ -63,6 +105,10 @@ export default {
       selectedInput: null,
       directories: [],
       alertMessage: "",
+      renameDialog: false,
+      renameFind: "azure-",
+      renameReplace: "terraform-azurerm-",
+      removeMatches: [],
     };
   },
 
@@ -75,14 +121,17 @@ export default {
       console.log(e.target.files[0].path);
       if (e.target.files) {
         this.working_directory = e.target.files[0].path;
+        this.readDirectories();
+      } else {
+        this.showAlert("Can't find directory")
       }
-      this.readDirectories();
     },
 
     readDirectories() {
       fs.readdir(this.working_directory, (err, dir) => {
         if (err) {
           console.error(err);
+          this.showAlert(err)
           return;
         }
         this.directories = dir;
@@ -90,20 +139,28 @@ export default {
     },
 
     handleRename() {
-      let find = "azure-";
-      let replace = "terraform-azurerm-";
+      this.renameDialog = false
+
+      let find = this.renameFind;
+      let replace = this.renameReplace;
       let count = 0;
       this.directories.forEach((path) => {
         if (path.includes(find)) {
           let newPath =
-            this.working_directory + "/" + path.replace(find, replace);
+              this.working_directory + "/" + path.replace(find, replace);
           let currPath = this.working_directory + "/" + path;
           console.log(path + " to " + path.replace(find, replace));
-          fs.renameSync(currPath, newPath);
-          count++;
+          if (!fs.existsSync(newPath)) {
+            fs.renameSync(currPath, newPath);
+            count++;
+          }
         }
       });
+      this.readDirectories();
       this.showAlert("Renamed " + count + " directories");
+
+      this.renameFind = null;
+      this.renameReplace = null;
     },
     handleStripGit() {
       let count = 0;
@@ -168,11 +225,11 @@ body {
 
 #wrapper {
   background: radial-gradient(
-    ellipse at top left,
-    rgba(255, 255, 255, 1) 40%,
-    rgba(229, 229, 229, 0.9) 100%
+      ellipse at top left,
+      rgba(255, 255, 255, 1) 10%,
+      rgba(229, 229, 229, 0.9) 100%
   );
-  height: 100vh;
+  min-height: 100vh;
   padding: 60px 80px;
   width: 100vw;
 }
@@ -196,7 +253,11 @@ body {
   display: flex;
   flex-direction: column;
 }
-
+.right-side {
+  margin-left: 2em;
+  display: flex;
+  flex-direction: column;
+}
 .welcome {
   color: #555;
   font-size: 23px;
@@ -256,9 +317,11 @@ body {
 .hidden {
   display: none;
 }
+
 .grid {
   display: inline-grid;
 }
+
 .grid button {
   margin-top: 5px;
 }
