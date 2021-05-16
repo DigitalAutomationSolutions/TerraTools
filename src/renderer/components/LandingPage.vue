@@ -40,8 +40,7 @@
         <div class="doc" v-if="working_directory">
           <div class="grid">
             <button @click="renameDialog = true">Rename directory prefixes</button>
-            <button @click="handleStripGit">Strip Git</button>
-            <button @click="handleStripTemplate">Strip Template</button>
+            <button @click="removeDialog = true">Remove Files/Folders By Name</button>
           </div>
         </div>
       </div>
@@ -86,18 +85,57 @@
         </div>
       </div>
     </base-modal>
+
+    <base-modal v-if="removeDialog" @close="removeDialog = false">
+      <h3 slot="header">Remove Files / Directories</h3>
+      <div slot="body" class="mt-5">
+        <div class="field is-horizontal">
+          <div class="field-label is-normal">
+            <label class="label">Remove</label>
+          </div>
+          <div class="field-body">
+            <div class="field">
+              <p class="control is-flex">
+                <input class="input" v-model="removeInput">
+                <button class="button is-primary is-outlined" @click="addToRemoveList">Add</button>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tags">
+          <span class="tag is-warning is-medium" v-for="(item, index) in removeList">
+            {{ item }}
+            <button class="delete is-small" @click="removeItemFromList(index)"></button>
+          </span>
+        </div>
+
+      </div>
+      <div slot="footer" class="mt-5 mb-2">
+        <div class="field is-grouped">
+          <div class="control">
+            <button @click="removeDialog = false" class="file-label">Cancel</button>
+          </div>
+          <div class="control">
+            <button @click="handleRemove" class="file-label">Proceed</button>
+          </div>
+        </div>
+      </div>
+    </base-modal>
+
   </div>
 </template>
 
 <script>
 import Toast from "./Toast";
 import BaseModal from "./BaseModal";
+import PlusIcon from "./PlusIcon";
 
 const fs = window.require("fs");
 
 export default {
   name: "landing-page",
-  components: {Toast, BaseModal},
+  components: {Toast, BaseModal, PlusIcon},
 
   data() {
     return {
@@ -106,9 +144,11 @@ export default {
       directories: [],
       alertMessage: "",
       renameDialog: false,
+      removeDialog: false,
       renameFind: "azure-",
       renameReplace: "terraform-azurerm-",
-      removeMatches: [],
+      removeList: [],
+      removeInput: null,
     };
   },
 
@@ -162,28 +202,25 @@ export default {
       this.renameFind = null;
       this.renameReplace = null;
     },
-    handleStripGit() {
-      let count = 0;
-      this.directories.forEach((path) => {
-        let removePath = this.working_directory + "/" + path + "/.git";
-        if (fs.existsSync(removePath)) {
-          this.deleteFolderRecursive(removePath);
-          count++;
-        }
-      });
-      this.showAlert("Removed " + count + " directories");
-    },
 
-    handleStripTemplate() {
+    handleRemove() {
       let count = 0;
-      this.directories.forEach((path) => {
-        let removePath = this.working_directory + "/" + path + "/template";
-        if (fs.existsSync(removePath)) {
-          this.deleteFolderRecursive(removePath);
-          count++;
-        }
-      });
-      this.showAlert("Removed " + count + " directories");
+      this.removeList.forEach((removeItem) => {
+        this.directories.forEach((path) => {
+          let removePath = this.working_directory + "/" + path + "/" + removeItem;
+          if (fs.existsSync(removePath) && fs.lstatSync(removePath).isDirectory()) {
+            this.deleteFolderRecursive(removePath);
+            count++;
+          } else if(fs.existsSync(removePath) && fs.lstatSync(removePath).isFile()) {
+            fs.readFileSync(removePath)
+            count++
+          }
+        });
+      })
+
+      this.removeDialog = false
+      this.removeList = []
+      this.showAlert("Removed " + count + " files/directories");
     },
 
     deleteFolderRecursive(path) {
@@ -206,6 +243,16 @@ export default {
       this.alertMessage = message;
       setTimeout(() => (this.alertMessage = ""), 1000);
     },
+
+    addToRemoveList() {
+      console.log('addToRemoveList')
+      this.removeList.push(this.removeInput)
+      this.removeInput = null
+    },
+
+    removeItemFromList(index) {
+      this.removeList.splice(index, 1)
+    }
   },
 };
 </script>
@@ -253,11 +300,13 @@ body {
   display: flex;
   flex-direction: column;
 }
+
 .right-side {
   margin-left: 2em;
   display: flex;
   flex-direction: column;
 }
+
 .welcome {
   color: #555;
   font-size: 23px;
