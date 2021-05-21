@@ -21,15 +21,23 @@
         <div class="doc mt-5" v-if="working_directory">
           <div class="title alt mt-5">Dir:</div>
           <p>{{ working_directory }}</p>
-          <div class="title alt">Sub Directories</div>
 
-          <v-card class="mx-auto" max-width="400" tile>
-            <v-list-item v-for="(name, i) in directories" :key="i">
-              <v-list-item-content>
-                <v-list-item-title>{{ name }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-card>
+          <div class="card">
+            <div class="card-title alt">
+              <p class="card-header-title">Directory Contents</p>
+            </div>
+            <div class="card-content">
+              <div class='list'>
+                <ul>
+                  <div class='list-item' v-for="(name, i) in directories" :key="i">
+                    <li>
+                      {{ name }}
+                    </li>
+                  </div>
+                </ul>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -132,6 +140,7 @@ import BaseModal from "./BaseModal";
 import PlusIcon from "./PlusIcon";
 
 const fs = window.require("fs");
+const Path = require("path");
 
 export default {
   name: "landing-page",
@@ -162,6 +171,7 @@ export default {
       if (e.target.files) {
         this.working_directory = e.target.files[0].path;
         this.readDirectories();
+        this.getDirectories(this.working_directory)
       } else {
         this.showAlert("Can't find directory")
       }
@@ -211,7 +221,7 @@ export default {
           if (fs.existsSync(removePath) && fs.lstatSync(removePath).isDirectory()) {
             this.deleteFolderRecursive(removePath);
             count++;
-          } else if(fs.existsSync(removePath) && fs.lstatSync(removePath).isFile()) {
+          } else if (fs.existsSync(removePath) && fs.lstatSync(removePath).isFile()) {
             fs.readFileSync(removePath)
             count++
           }
@@ -252,7 +262,30 @@ export default {
 
     removeItemFromList(index) {
       this.removeList.splice(index, 1)
-    }
+    },
+
+    getDirectories(directory) {
+      let files = [];
+      let fileTree = {};
+      let base = directory;
+
+      const getFilesRecursively = (directory) => {
+        const filesInDirectory = fs.readdirSync(directory);
+        for (const file of filesInDirectory) {
+          const absolute = Path.join(directory, file);
+          if (fs.statSync(absolute).isDirectory()) {
+            getFilesRecursively(absolute);
+          } else {
+            files.push(absolute);
+          }
+        }
+
+      };
+      getFilesRecursively(directory)
+      console.log('files', files)
+    },
+
+
   },
 };
 </script>
