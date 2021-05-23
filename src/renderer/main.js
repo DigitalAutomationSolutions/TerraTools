@@ -9,9 +9,10 @@ if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.http = Vue.prototype.$http = axios
 Vue.config.productionTip = false
 
-import Vuetify from 'vuetify'
-Vue.use(Vuetify)
-import 'vuetify/dist/vuetify.min.css'
+import Vuetify from 'vuetify';
+Vue.use(Vuetify);
+import 'vuetify/dist/vuetify.min.css';
+import './assets/style.css';
 
 import 'bulma/css/bulma.css'
 
