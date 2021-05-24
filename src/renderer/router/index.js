@@ -18,7 +18,7 @@ export default new Router({
     {
       path: '/code-generator',
       name: 'code-generator',
-      component: require('@/pages/FileTools').default
+      component: require('@/pages/CodeGenerator').default
     },
     {
       path: '/repo-setup',
