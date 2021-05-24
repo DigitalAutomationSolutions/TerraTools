@@ -60,8 +60,8 @@
       </div>
       <section class="modal-card-body">
         <div class="scroll">
-          <pre >{{moduleOutput}}</pre>
-          <textarea id="module-output" class="hidden">{{moduleOutput}}</textarea>
+<!--          <pre >{{moduleOutput}}</pre>-->
+          <textarea id="module-output" style="width:100%;min-height: 400px;overflow-y: auto">{{moduleOutput}}</textarea>
         </div>
       </section>
       <div class="columns">
