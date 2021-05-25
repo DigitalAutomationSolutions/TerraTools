@@ -60,10 +60,11 @@
       </div>
       <section class="modal-card-body">
         <div class="scroll">
-          <textarea id="module-output" style="width:100%;min-height: 400px;overflow-y: auto">{{moduleOutput}}</textarea>
+          <pre style="width:100%;min-height: 400px" ><code id="module-output" >{{moduleOutput}}</code></pre>
         </div>
       </section>
       <div class="columns">
+        <div class="column"></div>
         <div class="column">
           <button @click="showCode = false" class="file-label">Cancel</button>
         </div>
@@ -187,10 +188,17 @@ export default {
       return variables;
     },
     async copy(s) {
-      var copyText = document.querySelector("#module-output");
-      copyText.select();
-      document.execCommand("copy");
+      this.copyToClipboard('module-output')
       alert('Copied!');
+    },
+
+    copyToClipboard(id) {
+      var r = document.createRange();
+      r.selectNode(document.getElementById(id));
+      window.getSelection().removeAllRanges();
+      window.getSelection().addRange(r);
+      document.execCommand('copy');
+      window.getSelection().removeAllRanges();
     },
 
     /**
