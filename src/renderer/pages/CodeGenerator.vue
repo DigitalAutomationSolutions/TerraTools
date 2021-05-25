@@ -60,7 +60,6 @@
       </div>
       <section class="modal-card-body">
         <div class="scroll">
-<!--          <pre >{{moduleOutput}}</pre>-->
           <textarea id="module-output" style="width:100%;min-height: 400px;overflow-y: auto">{{moduleOutput}}</textarea>
         </div>
       </section>
@@ -74,32 +73,7 @@
       </div>
 
     </div>
-<!--    <base-modal v-if="showCode" @close="showCode = false">-->
-<!--      <h3 slot="header">Build List</h3>-->
-<!--      <div slot="body" class="mt-5">-->
-<!--        <div class="card">-->
-<!--          <div class="card-title alt">-->
-<!--            <p class="card-header-title">Directory Contents</p>-->
-<!--          </div>-->
-<!--          <section class="modal-card-body">-->
-<!--            <div class="scroll">-->
-<!--              <pre id="module-output">{{moduleOutput}}</pre>-->
-<!--            </div>-->
-<!--          </section>-->
 
-<!--        </div>-->
-<!--      </div>-->
-<!--      <div slot="footer" class="mt-5 mb-2">-->
-<!--        <div class="field is-grouped">-->
-<!--          <div class="control">-->
-<!--            <button @click="showCode = false" class="file-label">Cancel</button>-->
-<!--          </div>-->
-<!--          <div class="control">-->
-<!--            <button @click="copy" class="file-label" >Copy to Clipboard</button>-->
-<!--          </div>-->
-<!--        </div>-->
-<!--      </div>-->
-<!--    </base-modal>-->
   </div>
 </template>
 
@@ -137,7 +111,6 @@ export default {
       if (e.target.files) {
         this.working_directory = e.target.files[0].path;
         this.readDirectories();
-        this.getDirectories(this.working_directory)
       } else {
         this.showAlert("Can't find directory")
       }
@@ -161,12 +134,17 @@ export default {
     },
 
     async buildModules() {
-      let JSONBuild = this.moduleList.map( m => {
+      let JSONBuild = this.moduleList.map(m => {
         const dirPath = this.working_directory + '/' + m;
         const varPath = dirPath + '/variables.tf';
         const gitConfigPath = dirPath + '/.git/config';
 
         let gitUrl = this.getGitUrl(gitConfigPath);
+
+        //find all tf tiles
+        let files = this.getAllFilesRecursive(dirPath).filter(file => file.endsWith('.tf'));
+
+        console.log('files for ' + dirPath, files)
 
         // use cli to get remote
         // const { exec } = require('child_process');
@@ -179,13 +157,13 @@ export default {
         //     gitUrl = stdout;
         //   }
         // });
-
         let variables = [];
-        if(fs.existsSync(varPath)) {
-          const content = fs.readFileSync(varPath);
-          const hclFile = parser.parse(content);
-          variables = Object.keys(hclFile.variables)
+        for(let file of files) {
+          let tempVars = this.getFileVariables(file);
+          console.log('tempVars', tempVars, file);
+          variables = variables.concat(tempVars);
         }
+
 
         return {name: m, variables, source: gitUrl}
       })
@@ -195,6 +173,19 @@ export default {
       console.log('moduleOutput', this.moduleOutput)
     },
 
+    getFileVariables(varPath) {
+      let variables = [];
+      if (fs.existsSync(varPath)) {
+        const content = fs.readFileSync(varPath);
+        const hclFile = parser.parse(content);
+        variables = Object.keys(hclFile.variables)
+
+      } else {
+        console.log('File Not Found '+ varPath)
+      }
+
+      return variables;
+    },
     async copy(s) {
       var copyText = document.querySelector("#module-output");
       copyText.select();
@@ -209,12 +200,18 @@ export default {
       }
      */
     buildModulesFromJson(json) {
+      const alignSpaces = true;
+
       let moduleMap = json.map(module => {
         let output = `module "${module.name}" {\n`;
         output += `\tsource = "${module.source}"\n\n`;
 
-        for(let variable of module.variables) {
-          output += `\t${variable} = var.${variable}\n`;
+        let maxlength = module.variables.length > 0 ? module.variables.reduce((p, v) => (p > v.length? p: v.length)): 0;
+        for (let variable of module.variables) {
+          let spacePos = maxlength+5;
+          let fill = alignSpaces? Array(spacePos - variable.length).fill('\xa0').join('') : ' ';
+
+          output += `\t${variable}${fill}= var.${variable}\n`;
         }
         output += "}\n";
         return output;
@@ -224,13 +221,13 @@ export default {
     },
 
     getGitUrl(gitConfigPath) {
-      if(fs.existsSync(gitConfigPath)) {
+      if (fs.existsSync(gitConfigPath)) {
 
         let gitUrl = null
         const data = fs.readFileSync(gitConfigPath, 'utf8')
         gitUrl = data.split("\n").find(l => l.includes('url = '))
 
-        return gitUrl !== null ? gitUrl.replace('url = ', '').trim(): null;
+        return gitUrl !== null ? gitUrl.replace('url = ', '').trim() : null;
 
       } else {
         console.log("File not found: ", gitConfigPath);
@@ -238,17 +235,18 @@ export default {
       }
     },
 
-    getDirectories(directory) {
+    getAllFilesRecursive(directory) {
+      const skipHiddenFolders = true;
       let files = [];
-      let fileTree = {};
-      let base = directory;
 
       const getFilesRecursively = (directory) => {
         const filesInDirectory = fs.readdirSync(directory);
         for (const file of filesInDirectory) {
           const absolute = Path.join(directory, file);
           if (fs.statSync(absolute).isDirectory()) {
-            getFilesRecursively(absolute);
+            if(!(file.startsWith('.') && skipHiddenFolders)) {
+              getFilesRecursively(absolute);
+            }
           } else {
             files.push(absolute);
           }
@@ -256,7 +254,8 @@ export default {
 
       };
       getFilesRecursively(directory)
-      console.log('files', files)
+
+      return files;
     },
 
   },
