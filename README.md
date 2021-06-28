@@ -42,22 +42,22 @@ npm run build
 
 - Select "Set Working Directory"
 
-![image info](./readme-pictures/2.jpg)
+![image info](https://github.com/DigitalAutomationSolutions/TerraTools/blob/master/readme-pictures/2.jpg)
 
 
 - Select the entire Terraform Directory where all of your child modules reside
 
-![image info](./readme-pictures/3.jpg)
+![image info](https://github.com/DigitalAutomationSolutions/TerraTools/blob/master/readme-pictures/3.jpg)
 
 
 - Select child modules you want to turn into root modules
 
-![image info](./readme-pictures/4.jpg)
+![image info](https://github.com/DigitalAutomationSolutions/TerraTools/blob/master/readme-pictures/4.jpg)
 
 
 - Copy code and paste into your project
 
-![image info](./readme-pictures/5.jpg)
+![image info](https://github.com/DigitalAutomationSolutions/TerraTools/blob/master/readme-pictures/5.jpg)
 
 
 
