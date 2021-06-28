@@ -38,7 +38,7 @@ npm run build
 - Select "Code Generator"
 
 
-![image info](./readme-pictures/1.jpg)
+![image info](https://github.com/DigitalAutomationSolutions/TerraTools/blob/master/readme-pictures/1.JPG)
 
 - Select "Set Working Directory"
 
