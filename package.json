@@ -1,8 +1,8 @@
 {
   "name": "terrabros-tools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "matt <matthewjohncoleman@gmail.com>",
-  "description": "An electron-vue project",
+  "description": "TerraTools",
   "license": null,
   "main": "./dist/electron/main.js",
   "scripts": {
