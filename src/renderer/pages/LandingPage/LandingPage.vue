@@ -1,11 +1,11 @@
 <template>
   <div class="columns">
-    <div class="column">
-      <button class="button is-primary is-outlined" @click="$router.push('file-tools')"> File Tools</button>
-    </div>
-    <div class="column">
-      <button class="button is-primary is-outlined"  @click="$router.push('file-tools')">Set up Repos</button>
-    </div>
+<!--    <div class="column">-->
+<!--      <button class="button is-primary is-outlined" @click="$router.push('file-tools')"> File Tools</button>-->
+<!--    </div>-->
+<!--    <div class="column">-->
+<!--      <button class="button is-primary is-outlined"  @click="$router.push('file-tools')">Set up Repos</button>-->
+<!--    </div>-->
     <div class="column">
       <button class="button is-primary is-outlined"  @click="$router.push('code-generator')">Code Generator</button>
     </div>
