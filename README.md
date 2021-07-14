@@ -2,7 +2,7 @@
 
 
 
-### For .exe installer go to [Terra-Tools-exe-Installer](https://github.com/DigitalAutomationSolutions/TerraTools/releases/download/v0.0.1-alpha/terrabros-tools.Setup.0.0.1.exe)
+### For .exe installer go to [Terra-Tools-exe-Installer](https://github.com/DigitalAutomationSolutions/TerraTools/releases/download/0.0.2alpha/terrabros-tools.Setup.0.0.2.exe)
 
 
 
