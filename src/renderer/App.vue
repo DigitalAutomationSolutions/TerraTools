@@ -7,7 +7,7 @@
         </a>
         <div class="navbar-item">
           <h2>
-            Terra Bros Tools
+            Terra Tools
           </h2>
         </div>
       </div>
