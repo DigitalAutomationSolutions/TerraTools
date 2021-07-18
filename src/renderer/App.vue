@@ -20,7 +20,7 @@
 
 <script>
 export default {
-  name: 'terrabros-tools'
+  name: 'terra-tools'
 }
 </script>
 
