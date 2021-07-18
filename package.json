@@ -1,5 +1,5 @@
 {
-  "name": "terrabros-tools",
+  "name": "terra-tools",
   "version": "0.0.2",
   "author": "matt <matthewjohncoleman@gmail.com>",
   "description": "TerraTools",
@@ -20,8 +20,8 @@
     "make": "electron-forge make"
   },
   "build": {
-    "productName": "terrabros-tools",
-    "appId": "com.terrabros.tools",
+    "productName": "terra-tools",
+    "appId": "com.digitalautomationsolutions.terratools",
     "directories": {
       "output": "build"
     },
@@ -116,7 +116,7 @@
         {
           "name": "@electron-forge/maker-squirrel",
           "config": {
-            "name": "terrabros_tools"
+            "name": "terra_tools"
           }
         },
         {
